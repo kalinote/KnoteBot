@@ -1,7 +1,6 @@
 import asyncio
 
 from commands import *
-from test import *
 from browsers.chrome import ChromeBrowserLauncher
 
 asyncio.run(bot.start(

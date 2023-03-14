@@ -1,23 +1,24 @@
+# 测试接口
 import argparse
-import shlex
 import time
+import shlex
 
-from amiyabot import Chain, log
-from amiyabot import Message
-from configs import order_level, bot, sender_ids
+from amiyabot import Message, Chain, log
+
 from ai.gpt.chatgpt import gpt_sessions
+from configs import bot, order_level, sender_ids
 
-class EndSession:
-    command = "#结束会话"
-    description = "结束一个群内的任何类型的会话"
 
-# 结束会话
-async def end_session_verify(data: Message):
-    return True if data.text.startswith(EndSession.command) else False
-@bot.on_message(verify=end_session_verify, level=order_level, check_prefix=False)
-async def end_session(data: Message):
+class SessionHistory:
+    command = "#会话历史"
+    description = "查看当前正在进行的会话的所有历史记录"
+
+async def session_history_verify(data: Message):
+    return True if data.text.startswith(SessionHistory.command) else None
+@bot.on_message(verify=session_history_verify, level=order_level, check_prefix=False)
+async def session_history(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=EndSession.command, description=EndSession.description)
+    parser = argparse.ArgumentParser(prog=SessionHistory.command, description=SessionHistory.description)
 
     # 帮助信息
     parameters = shlex.split(data.text)[1:]
@@ -32,12 +33,10 @@ async def end_session(data: Message):
         return Chain(data).text(
             f'在解析命令时出现了错误: {e}, 需要注意的是，如果参数字符串中出现了空格，需要使用引号括起来，如: "this is a example"')
 
-    # 判断是否有会话正在进行
+
     gpt_session = gpt_sessions.get(data.channel_id, None)
     if gpt_session is None:
-        return Chain(data).text("当前没有任何ChatGPT会话，使用\"开始对话\"来开启一个新的ChatGPT会话。")
-
-    await bot.send_message(Chain().at(data.user_id).text(f"对话结束，销毁ChatGPT会话，本次对话共 {gpt_sessions.get(data.channel_id).get_conversations_count()} 次(包括系统和GPT回答)，总共使用 {gpt_sessions.get(data.channel_id).get_tokens_count()} Tokens。"), channel_id=data.channel_id)
+        return Chain(data).text("当前没有任何ChatGPT会话，使用\"#开始会话\"来开启一个新的ChatGPT会话。")
 
     # preview = [conversation['message']['content'] for conversation in gpt_session.get_conversations_group()[:4]]
     node_list = [
@@ -48,7 +47,7 @@ async def end_session(data: Message):
             "messageChain": [
                 {
                     "type": "Plain",
-                    "text": "[实验功能]会话已结束，以下是该轮会话已经产生的对话"
+                    "text": "[实验功能]以下是该轮会话已经产生的对话"
                 }
             ]
         },
@@ -86,23 +85,10 @@ async def end_session(data: Message):
             "title": f"会话记录",
             "brief": f"群{data.channel_id}于{time.strftime('%m月%d日 %H:%M', time.localtime(gpt_session.get_start_time()))}产生的会话记录",
             "source": "会话记录",
-            "preview": ["会话已结束", "点击查看", f"群 {data.channel_id} 于 {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(gpt_session.get_start_time()))} 产生的会话记录"],
+            "preview": ["点击查看", f"群 {data.channel_id} 于 {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(gpt_session.get_start_time()))} 产生的会话记录"],
             "summary": f"查看{gpt_session.get_conversations_count()}条会话记录"
         },
-        "nodeList": node_list + [
-            {
-                "senderId": sender_ids['system'],
-                "time": int(time.time()),
-                "senderName": 'system',
-                "messageChain": [
-                    {
-                        "type": "Plain",
-                        "text": f"对话结束，本次对话共 {gpt_sessions.get(data.channel_id).get_conversations_count()} 次(包括系统和GPT回答)，总共使用 {gpt_sessions.get(data.channel_id).get_tokens_count()} Tokens。"
-                    }
-                ]
-            }
-        ]
+        "nodeList": node_list
     }
 
-    gpt_sessions[data.channel_id] = None
     return Chain(data).extend(original_message)

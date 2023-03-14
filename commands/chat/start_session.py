@@ -47,5 +47,5 @@ async def start_session(data: Message):
     gpt_sessions[data.channel_id] = ChatGPT(temperature=temperature, system_order=order)
     return Chain(data).text("新建ChatGPT会话，现在可以开始对话了。\n"
                             f"在会话过程中，如果你发送的内容不是想对{bot_name}说的，可以在发言内容前面加*，{bot_name}将不会看到这条消息\n"
-                            f"[实验功能]在会话过程中，如果你想对{bot_name}说，但不想得到{bot_name}的回复，可以在发言内容前面加#，{bot_name}可以看到这条消息，但不会回复。\n"
+                            f"[实验功能]在会话过程中，如果你想对{bot_name}说，但不想得到{bot_name}的回复，可以在发言内容前面加\"-\"，{bot_name}可以看到这条消息，但不会回复。\n"
                             f"对话完成后，使用{EndSession.command}指令来结束对话。")

@@ -11,7 +11,7 @@ async def gpt_verify(data: Message):
     return True if gpt_sessions.get(data.channel_id, None) is not None else None
 @bot.on_message(verify=gpt_verify, level=chat_level)
 async def gpt(data: Message):
-    if data.text.startswith("#"):
+    if data.text.startswith("-"):
         gpt_sessions.get(data.channel_id).add_conversation('user', f"[{data.nickname}]{data.text}")
         return
 

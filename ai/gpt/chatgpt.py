@@ -1,4 +1,6 @@
 import json
+import time
+
 import requests
 
 from configs import proxies, headers
@@ -20,6 +22,33 @@ class ChatGPT:
         self.tokens_count = 0
         self.next_alarm_token_counts = 30000
 
+        # 会话开始时间
+        self.start_time = time.time()
+
+    def get_start_time(self):
+        return self.start_time
+
+    def get_conversations_group(self):
+        return self.conversations_group
+
+    def get_conversations_count(self):
+        """
+        获取对话总次数
+        :return:
+        """
+        return len(self.conversations_group)
+
+    def get_tokens_count(self):
+        return self.tokens_count
+
+    def get_data(self):
+        messages = [conversation['message'] for conversation in self.get_conversations_group()]
+        return {
+            "model": "gpt-3.5-turbo",
+            "messages": messages,
+            "temperature": self.temperature
+        }
+
     def add_conversation(self, role, content):
         """
         添加对话到对话组
@@ -38,19 +67,13 @@ class ChatGPT:
         :return:
         """
         return {
-            "role": role,
-            "content": content
+            "message": {
+                "role": role,
+                "content": content,
+            },
+            # 下面是自己加的，不是ChatGPT要求的
+            "send_time": time.time()
         }
-
-    def get_conversations_count(self):
-        """
-        获取对话总次数
-        :return:
-        """
-        return len(self.conversations_group)
-
-    def get_tokens_count(self):
-        return self.tokens_count
 
     def tokens_usage_check(self):
         """
@@ -61,14 +84,6 @@ class ChatGPT:
             self.next_alarm_token_counts += 10000
             return self.get_tokens_count()
         return False
-
-
-    def get_data(self):
-        return {
-            "model": "gpt-3.5-turbo",
-            "messages": self.conversations_group,
-            "temperature": self.temperature
-        }
 
     def call(self, content):
         """
