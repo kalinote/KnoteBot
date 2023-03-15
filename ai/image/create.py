@@ -24,15 +24,23 @@ class ImageGeneration:
         }
 
     def call(self):
-        ret = requests.post(
-            url=ImageGeneration.url,
-            headers=headers,
-            data=json.dumps(self.get_data()),
-            proxies=proxies
-        ).text
-        ret_json = json.loads(ret)
-        urls = [datas['url'] for datas in ret_json['data']]
-        self.urls = urls
+        try:
+            ret = requests.post(
+                url=ImageGeneration.url,
+                headers=headers,
+                data=json.dumps(self.get_data()),
+                proxies=proxies
+            ).text
+            ret_json = json.loads(ret)
+        except Exception as e:
+            log.error(f"在请求图片时出现了错误: {e}")
+            return f"在请求图片时出现了错误: {e}"
+        try:
+            urls = [datas['url'] for datas in ret_json['data']]
+            self.urls = urls
+        except Exception as e:
+            log.error(f"在解析json时出现了错误: {e}, json原文: {ret_json}")
+            return f"[Draw Handler]在处理json时出现错误，{e}，JSON原文为：{str(ret_json)}"
         return urls
 
     def download_images(self):

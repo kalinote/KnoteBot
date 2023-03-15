@@ -104,7 +104,7 @@ class ChatGPT:
         except Exception as e:
             log.error(f"在处理ChatGPT对话时发生了错误: {e}")
             self.conversations_group.pop()
-            return False
+            return f"在处理ChatGPT对话时发生了错误: {e}"
         try:
             answer = ret_json['choices'][0]['message']['content']
             self.tokens_count += int(ret_json['usage']['total_tokens'])

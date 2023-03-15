@@ -19,6 +19,4 @@ async def gpt(data: Message):
     alarm = gpt_sessions.get(data.channel_id).tokens_usage_check()
     if alarm:
         await bot.send_message(Chain().text(f"[Alarm]当前会话已进行{gpt_sessions.get(data.channel_id).get_conversations_count()}次，Token已使用数量为: {alarm}，请注意控制用量"), channel_id=data.channel_id)
-    if not answer:
-        return Chain(data).text('因为网络问题，ChatGPT接口调用失败，请稍后重试。')
     return Chain(data).text(answer)

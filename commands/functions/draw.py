@@ -49,7 +49,10 @@ async def draw(data: Message):
     await bot.send_message(Chain().at(data.user_id).text("正在准备生成，请稍等..."), channel_id=data.channel_id)
 
     image_generation = ImageGeneration(prompt=prompt, gen_number=number, size=size)
-    image_generation.call()
+    urls = image_generation.call()
+    if type(urls) == str:
+        return Chain(data).text(urls)
+
     files = image_generation.download_images()
     if not files:
         return Chain(data).text("图像生成错误，请稍后重试！")
