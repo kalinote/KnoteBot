@@ -14,9 +14,8 @@ bot_name = ''
 order_level = 100
 chat_level = 1
 # 机器人帮助文档
-help_doc = f"""
-# ----{bot_name} 使用指南----
-"""
+with open('help.xml', 'r', encoding="utf-8") as f:
+    help_doc = f.read().format(bot_name=bot_name)
 
 
 # ChatGPT对话系统指令

@@ -29,4 +29,4 @@ async def draw(data: Message):
         return Chain(data).text(
             f'在解析命令时出现了错误: {e}, 需要注意的是，如果参数字符串中出现了空格，需要使用引号括起来，如: "this is a example"')
 
-    return Chain(data).markdown(help_doc)
+    return Chain(data).text(help_doc)
