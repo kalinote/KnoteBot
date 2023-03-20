@@ -65,24 +65,20 @@ async def search_website(data: Message):
 
         h3_elements = await page.query_selector_all('h3')
         if not h3_elements:
-            # 页面中没有h3元素，直接退出循环
-            bot.send_message(Chain().text("出现错误，没有在google的搜索页面找到对应内容，请稍后或换一个关键词重试！"), channel_id=data.channel_id)
+            # 页面中没有h3元素
+            await bot.send_message(Chain().text("出现错误，没有在google的搜索页面找到h3，请稍后或换一个关键词重试！"), channel_id=data.channel_id)
             screenshot_bytes = await page.screenshot(full_page=True)
-            return Chain().image(screenshot_bytes)
+            return Chain(data).image(screenshot_bytes)
 
-        for i in range(len(h3_elements)):
-            h3_element = h3_elements[i]
+        for h3_element in h3_elements:
             parent_element = await h3_element.query_selector("'xpath=..'")
+            if not parent_element:
+                continue
             href = await parent_element.get_attribute('href')
             if href is not None:
                 # 找到具有href属性的父元素
                 await page.goto(href)
                 break
-        else:
-            # 找完了都没找到带链接的h3标签
-            bot.send_message(Chain().text("出现错误，没有在google的搜索页面找到对应内容，请稍后或换一个关键词重试！"), channel_id=data.channel_id)
-            screenshot_bytes = await page.screenshot(full_page=True)
-            return Chain().image(screenshot_bytes)
 
 
         screenshot_bytes = await page.screenshot(full_page=True)
