@@ -1,10 +1,3 @@
-"""
-@File: chrome.py
-@Author: 韩思宇
-@Date: 2023/3/14 12:21
-@description:
-"""
-
 from playwright.async_api import Playwright, Browser
 from amiyabot import BrowserLaunchConfig
 

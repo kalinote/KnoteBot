@@ -71,7 +71,7 @@ async def search_website(data: Message):
             return Chain(data).image(screenshot_bytes)
 
         for h3_element in h3_elements:
-            parent_element = await h3_element.query_selector("'xpath=..'")
+            parent_element = await h3_element.query_selector('xpath=..')
             if not parent_element:
                 continue
             href = await parent_element.get_attribute('href')
