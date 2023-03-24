@@ -3,7 +3,9 @@ import shlex
 
 from amiyabot import Chain, log
 from amiyabot import Message
-from configs import order_level, image_dir, bot
+
+from ai.gpt.chatgpt import ChatGPT
+from configs import order_level, image_dir, bot, system_order
 from ai.image.create import ImageGeneration
 
 class Draw:
@@ -45,10 +47,15 @@ async def draw(data: Message):
         return Chain(data).text(f"指定的图像尺寸不正确，支持的尺寸为: 128x128、512x512、1024x1024，指定的尺寸为: {size}")
     if not prompt:
         return Chain(data).text(f"需要使用-p/--prompt参数指定prompt(对图片的描述)，使用\"{Draw.command} -h\"查看详细帮助")
+    if number > 10 or number < 1:
+        return Chain(data).text(f"指定的数量不正确，数量只能为1-10之间的整数，指定的数量为: {number}")
 
     await bot.send_message(Chain().at(data.user_id).text("正在准备生成，请稍等..."), channel_id=data.channel_id)
 
-    image_generation = ImageGeneration(prompt=prompt, gen_number=number, size=size)
+    # 通过GPT将prompt处理为英文
+    prompt_en = ChatGPT(temperature=0, system_order=system_order['翻译助手']).call(content=prompt)
+
+    image_generation = ImageGeneration(prompt=prompt_en, gen_number=number, size=size)
     urls = image_generation.call()
     if type(urls) == str:
         return Chain(data).text(urls)
@@ -57,9 +64,11 @@ async def draw(data: Message):
     if not files:
         return Chain(data).text("图像生成错误，请稍后重试！")
 
+    image_count = 0
     for file in files:
         with open(f'{image_dir}/{file}', 'rb') as f:
             image = f.read()
-        await bot.send_message(Chain().image(image), channel_id=data.channel_id)
+        image_count +=1
+        await bot.send_message(Chain().text(f'prompt: {prompt_en}, size: {size}, number: {image_count}/{len(files)}').image(image), channel_id=data.channel_id)
     return
 
