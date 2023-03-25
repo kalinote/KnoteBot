@@ -108,10 +108,11 @@ class ChatGPT:
         try:
             answer = ret_json['choices'][0]['message']['content']
             self.tokens_count += int(ret_json['usage']['total_tokens'])
-            self.add_conversation('assistant', answer)
         except Exception as e:
             log.error(f"在处理json时出现错误，{e}，JSON原文为：{str(ret_json)}")
+            self.add_conversation('assistant', 'no reply')
             return f"[ChatGPT Handler]在处理json时出现错误，{e}，JSON原文为：{str(ret_json)}"
+        self.add_conversation('assistant', answer)
         return answer
 
 

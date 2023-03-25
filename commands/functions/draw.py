@@ -10,7 +10,7 @@ from ai.image.create import ImageGeneration
 
 class Draw:
     command = "#画图"
-    description = "开始一段普通会话，每个群只能同时开启一个单独的会话"
+    description = "通过自然语言绘制图片"
 
 # 画图(先暂时固定生成1024，1张)
 async def draw_verify(data: Message):

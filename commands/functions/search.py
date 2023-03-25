@@ -1,18 +1,23 @@
 import argparse
 import shlex
+import time
 
 from amiyabot import Chain, log
 from amiyabot import Message
 from playwright.async_api import async_playwright
 
 from ai.gpt.chatgpt import ChatGPT
-from configs import order_level, bot, PROXY_IP, PROXY_PORT
+from configs import order_level, bot, PROXY_IP, PROXY_PORT, system_order
+
 
 def get_middle_chars(s, n):
     middle = len(s) // 2
     start = middle - n // 2
     end = start + n
     return s[start:end]
+
+def split_string(string, n):
+    return [string[i:i+n] for i in range(0, len(string), n)]
 
 class RequestWebsite:
     command = "#搜索"
@@ -45,7 +50,7 @@ async def search_website(data: Message):
     keyword = args.keyword
     url = f"https://www.google.com/search?q={keyword}"
 
-    await bot.send_message(Chain().at(data.user_id).text("[实验功能]正在请求搜索内容，该过程需要数秒，请稍等..."), channel_id=data.channel_id)
+    await bot.send_message(Chain().at(data.user_id).text("[实验功能]正在请求搜索内容，由于openai限制每分钟请求数，内容较多的页面所以可能会较慢，请稍等..."), channel_id=data.channel_id)
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(
@@ -71,7 +76,7 @@ async def search_website(data: Message):
             return Chain(data).image(screenshot_bytes)
 
         for h3_element in h3_elements:
-            parent_element = await h3_element.query_selector("'xpath=..'")
+            parent_element = await h3_element.query_selector("xpath=..")
             if not parent_element:
                 continue
             href = await parent_element.get_attribute('href')
@@ -85,18 +90,14 @@ async def search_website(data: Message):
         await bot.send_message(Chain().image(screenshot_bytes), channel_id=data.channel_id)
 
         # content = await page.inner_text('h1, p, div')
-        content = await page.inner_text('body')
+        full_content = await page.inner_text('body')
 
-    reply = ''
-    gpt = ChatGPT(temperature=0.3, system_order="你是一个网页内容分析助手，你需要根据用户发送的网页内容的消息来分析")
+    content_list = split_string(full_content, 3500)
+    count = 0
+    for content in content_list:
+        count += 1
+        gpt = ChatGPT(temperature=0.3, system_order=system_order['网页分析助手'])
+        await bot.send_message(Chain().text(f"第{count}/{len(content_list)}段：\n" + gpt.call(content)), channel_id=data.channel_id)
+        time.sleep(1)
 
-    if len(content) > 3500:
-        reply += f'[由于ChatGPT API限制，只能识别3500个字符(4097 token)，但本篇文章全长共{len(content)}字符]\n[3500个字符是截取网页最中间的，最大程度减小顶部链接或底部链接对内容分析的影响]\n'
-        content = get_middle_chars(content, 3500)
-
-    # print(content)
-    gpt.add_conversation('user', content)
-    reply += gpt.call('请对以上内容进行分析，并使用中文描述')
-
-    return Chain(data).text(reply)
-
+    return
