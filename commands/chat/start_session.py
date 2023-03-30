@@ -10,8 +10,8 @@ from ai.gpt.chatgpt import ChatGPT
 from ai.gpt.chatgpt import gpt_sessions
 
 class StartSession:
-    command = "#开始会话"
-    description = "开始一段普通会话，每个群只能同时开启一个单独的会话"
+    command = "#会话"
+    description = "开始一段会话，每个群只能同时开启一个单独的会话"
 
 # 普通会话模式
 async def start_session_verify(data: Message):
@@ -19,7 +19,7 @@ async def start_session_verify(data: Message):
 @bot.on_message(verify=start_session_verify, level=order_level, check_prefix=False)
 async def start_session(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=StartSession.command, description=StartSession.description)
+    parser = argparse.ArgumentParser(prog=StartSession.command, description=StartSession.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-t', '--temperature', type=float, default=0.7, help="ChatGPT的temperature值，为0-1之间的浮点数，该值越高(如0.8)将使输出更随机，而越低(例如0.2)将使其更集中和更确定，默认值0.7")
@@ -31,12 +31,7 @@ async def start_session(data: Message):
         return Chain(data).text(parser.format_help())
 
     # 解析命令
-    try:
-        args = parser.parse_args(args=parameters)
-    except Exception as e:
-        log.error(f"解析命令出现问题: {e}, 命令原文为: {data.text}")
-        return Chain(data).text(
-            f'在解析命令时出现了错误: {e}, 需要注意的是，如果参数字符串中出现了空格，需要使用引号括起来，如: "this is a example"')
+    args = parser.parse_args(args=parameters)
 
     temperature = args.temperature
     order = args.system_order

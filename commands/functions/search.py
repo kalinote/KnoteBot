@@ -24,7 +24,7 @@ async def search_verify(data: Message):
 @bot.on_message(verify=search_verify, level=order_level, check_prefix=False)
 async def search_website(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=RequestWebsite.command, description=RequestWebsite.description)
+    parser = argparse.ArgumentParser(prog=RequestWebsite.command, description=RequestWebsite.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-k', '--keyword', type=str, default="kalinote.top", help="需要搜索的关键词，默认为\"kalinote.top\"")
@@ -35,12 +35,7 @@ async def search_website(data: Message):
         return Chain(data).text(parser.format_help())
 
     # 解析命令
-    try:
-        args = parser.parse_args(args=parameters)
-    except Exception as e:
-        log.error(f"解析命令出现问题: {e}, 命令原文为: {data.text}")
-        return Chain(data).text(
-            f'在解析命令时出现了错误: {e}, 需要注意的是，如果参数字符串中出现了空格，需要使用引号括起来，如: "this is a example"')
+    args = parser.parse_args(args=parameters)
 
     keyword = args.keyword
     url = f"https://www.google.com/search?q={keyword}"
