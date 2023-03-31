@@ -10,8 +10,8 @@ from ai.gpt.chatgpt import ChatGPT
 from ai.gpt.chatgpt import gpt_sessions
 
 class StartSession:
-    command = "#开始会话"
-    description = "开始一段普通会话，每个群只能同时开启一个单独的会话"
+    command = "#会话"
+    description = "开始一段会话，每个群只能同时开启一个单独的会话"
 
 # 普通会话模式
 async def start_session_verify(data: Message):
@@ -31,12 +31,7 @@ async def start_session(data: Message):
         return Chain(data).text(parser.format_help())
 
     # 解析命令
-    try:
-        args = parser.parse_args(args=parameters)
-    except Exception as e:
-        log.error(f"解析命令出现问题: {e}, 命令原文为: {data.text}")
-        return Chain(data).text(
-            f'在解析命令时出现了错误: {e}, 需要注意的是，如果参数字符串中出现了空格，需要使用引号括起来，如: "this is a example"')
+    args = parser.parse_args(args=parameters)
 
     temperature = args.temperature
     order = args.system_order

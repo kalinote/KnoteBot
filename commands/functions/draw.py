@@ -31,12 +31,7 @@ async def draw(data: Message):
         return Chain(data).text(parser.format_help())
 
     # 解析命令
-    try:
-        args = parser.parse_args(args=parameters)
-    except Exception as e:
-        log.error(f"解析命令出现问题: {e}, 命令原文为: {data.text}")
-        return Chain(data).text(
-            f'在解析命令时出现了错误: {e}, 需要注意的是，如果参数字符串中出现了空格，需要使用引号括起来，如: "this is a example"')
+    args = parser.parse_args(args=parameters)
 
     number = args.generated_number
     prompt = args.prompt
