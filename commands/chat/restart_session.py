@@ -20,9 +20,9 @@ async def start_session(data: Message):
     # 解析参数
     parser = argparse.ArgumentParser(prog=RestartSession.command, description=RestartSession.description, exit_on_error=False)
 
-    # 在解析命令前先把-h处理掉，不然会导致程序退出
+    # 帮助信息
     parameters = shlex.split(data.text)[1:]
-    if '-h' in parameters:
+    if '-h' in parameters or '--help' in parameters:
         return Chain(data).text(parser.format_help())
 
     # 解析命令

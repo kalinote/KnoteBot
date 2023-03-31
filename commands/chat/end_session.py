@@ -21,7 +21,7 @@ async def end_session(data: Message):
 
     # 帮助信息
     parameters = shlex.split(data.text)[1:]
-    if '-h' in parameters:
+    if '-h' in parameters or '--help' in parameters:
         return Chain(data).text(parser.format_help())
 
     # 解析命令

@@ -25,9 +25,9 @@ async def draw(data: Message):
     parser.add_argument('-p', '--prompt', type=str, default=None, help="对需要生成的图片的描述，使用自然语言，越详细越好，虽然中文也可以，但是英文的准确度更高，此项必填")
     parser.add_argument('-s', '--size', type=str, default="512x512", help="生成图片的分辨率，只能为128x128、512x512、1024x1024其中之一，默认为512x512")
 
-    # 在解析命令前先把-h处理掉，不然会导致程序退出
+    # 帮助信息
     parameters = shlex.split(data.text)[1:]
-    if '-h' in parameters:
+    if '-h' in parameters or '--help' in parameters:
         return Chain(data).text(parser.format_help())
 
     # 解析命令

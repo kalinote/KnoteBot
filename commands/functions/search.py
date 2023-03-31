@@ -34,9 +34,9 @@ async def search_website(data: Message):
     # 添加选项和参数
     parser.add_argument('-k', '--keyword', type=str, default="kalinote.top", help="需要搜索的关键词，默认为\"kalinote.top\"")
 
-    # 在解析命令前先把-h处理掉，不然会导致程序退出
+    # 帮助信息
     parameters = shlex.split(data.text)[1:]
-    if '-h' in parameters:
+    if '-h' in parameters or '--help' in parameters:
         return Chain(data).text(parser.format_help())
 
     # 解析命令
