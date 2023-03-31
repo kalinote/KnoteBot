@@ -18,7 +18,7 @@ async def session_history_verify(data: Message):
 @bot.on_message(verify=session_history_verify, level=order_level, check_prefix=False)
 async def session_history(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=SessionHistory.command, description=SessionHistory.description)
+    parser = argparse.ArgumentParser(prog=SessionHistory.command, description=SessionHistory.description, exit_on_error=False)
 
     # 帮助信息
     parameters = shlex.split(data.text)[1:]

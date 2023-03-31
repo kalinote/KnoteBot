@@ -18,7 +18,7 @@ async def draw_verify(data: Message):
 @bot.on_message(verify=draw_verify, level=order_level, check_prefix=False)
 async def draw(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=Draw.command, description=Draw.description)
+    parser = argparse.ArgumentParser(prog=Draw.command, description=Draw.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-n', '--generated-number', type=int, default=1, help="生成图片数量，一般为1-10之间的整数，不建议一次生成超过3张，数量过高出现问题的概率会增大，默认为1")

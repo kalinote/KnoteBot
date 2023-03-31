@@ -19,7 +19,7 @@ async def start_session_verify(data: Message):
 @bot.on_message(verify=start_session_verify, level=order_level, check_prefix=False)
 async def start_session(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=StartSession.command, description=StartSession.description)
+    parser = argparse.ArgumentParser(prog=StartSession.command, description=StartSession.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-t', '--temperature', type=float, default=0.7, help="ChatGPT的temperature值，为0-1之间的浮点数，该值越高(如0.8)将使输出更随机，而越低(例如0.2)将使其更集中和更确定，默认值0.7")

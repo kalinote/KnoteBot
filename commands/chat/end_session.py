@@ -17,7 +17,7 @@ async def end_session_verify(data: Message):
 @bot.on_message(verify=end_session_verify, level=order_level, check_prefix=False)
 async def end_session(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=EndSession.command, description=EndSession.description)
+    parser = argparse.ArgumentParser(prog=EndSession.command, description=EndSession.description, exit_on_error=False)
 
     # 帮助信息
     parameters = shlex.split(data.text)[1:]

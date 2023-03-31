@@ -29,7 +29,7 @@ async def search_verify(data: Message):
 @bot.on_message(verify=search_verify, level=order_level, check_prefix=False)
 async def search_website(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=RequestWebsite.command, description=RequestWebsite.description)
+    parser = argparse.ArgumentParser(prog=RequestWebsite.command, description=RequestWebsite.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-k', '--keyword', type=str, default="kalinote.top", help="需要搜索的关键词，默认为\"kalinote.top\"")
@@ -61,17 +61,24 @@ async def search_website(data: Message):
             }
         )
         page = await browser.new_page()
-        await page.goto(url)
+        await page.goto(url, wait_until="load")
 
         # 定位第一个 <h3> 标签的父标签并跳转
         # h3_element = await page.query_selector('h3')
         # parent_element = await h3_element.query_selector('xpath=..')
         # await page.goto(await parent_element.get_attribute('href'))
 
+        # 处理机器人验证
+        if await page.query_selector("#rc-anchor-container"):
+            # print("执行了处理机器人验证")
+            await page.click("#rc-anchor-container")
+
+
         h3_elements = await page.query_selector_all('h3')
         if not h3_elements:
             # 页面中没有h3元素
             await bot.send_message(Chain().text("出现错误，没有在google的搜索页面找到h3，请稍后或换一个关键词重试！"), channel_id=data.channel_id)
+            # print(await page.content())
             screenshot_bytes = await page.screenshot(full_page=True)
             return Chain(data).image(screenshot_bytes)
 
@@ -92,7 +99,7 @@ async def search_website(data: Message):
         # content = await page.inner_text('h1, p, div')
         full_content = await page.inner_text('body')
 
-    content_list = split_string(full_content, 3500)
+    content_list = split_string(full_content, 3000)
     count = 0
     for content in content_list:
         count += 1

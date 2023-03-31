@@ -18,7 +18,7 @@ async def restart_session_verify(data: Message):
 @bot.on_message(verify=restart_session_verify, level=order_level, check_prefix=False)
 async def start_session(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=RestartSession.command, description=RestartSession.description)
+    parser = argparse.ArgumentParser(prog=RestartSession.command, description=RestartSession.description, exit_on_error=False)
 
     # 在解析命令前先把-h处理掉，不然会导致程序退出
     parameters = shlex.split(data.text)[1:]
