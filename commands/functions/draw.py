@@ -1,4 +1,3 @@
-import argparse
 import shlex
 
 from amiyabot import Chain, log
@@ -7,6 +6,8 @@ from amiyabot import Message
 from ai.gpt.chatgpt import ChatGPT
 from configs import order_level, image_dir, bot, system_order
 from ai.image.create import ImageGeneration
+from utils.ArgumentParser import ArgumentParser
+
 
 class Draw:
     command = "#画图"
@@ -18,20 +19,19 @@ async def draw_verify(data: Message):
 @bot.on_message(verify=draw_verify, level=order_level, check_prefix=False)
 async def draw(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=Draw.command, description=Draw.description, exit_on_error=False)
+    parser = ArgumentParser(prog=Draw.command, description=Draw.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-n', '--generated-number', type=int, default=1, help="生成图片数量，一般为1-10之间的整数，不建议一次生成超过3张，数量过高出现问题的概率会增大，默认为1")
     parser.add_argument('-p', '--prompt', type=str, default=None, help="对需要生成的图片的描述，使用自然语言，越详细越好，虽然中文也可以，但是英文的准确度更高，此项必填")
     parser.add_argument('-s', '--size', type=str, default="512x512", help="生成图片的分辨率，只能为128x128、512x512、1024x1024其中之一，默认为512x512")
 
-    # 帮助信息
-    parameters = shlex.split(data.text)[1:]
-    if '-h' in parameters or '--help' in parameters:
-        return Chain(data).text(parser.format_help())
-
     # 解析命令
-    args = parser.parse_args(args=parameters)
+    try:
+        args = parser.do_parse(data.text)
+    except Exception as info:
+        # 实际上不一定是错误，-h也会触发
+        return Chain(data).text(info.__str__())
 
     number = args.generated_number
     prompt = args.prompt
@@ -48,7 +48,7 @@ async def draw(data: Message):
     await bot.send_message(Chain().at(data.user_id).text("正在准备生成，请稍等..."), channel_id=data.channel_id)
 
     # 通过GPT将prompt处理为英文
-    prompt_en = ChatGPT(temperature=0, system_order=system_order['翻译助手']).call(content=prompt)
+    prompt_en = ChatGPT(temperature=0, system_order=system_order['翻译助手']).call(content="Translate the following English text to English: {prompt}".format(prompt=prompt))
 
     image_generation = ImageGeneration(prompt=prompt_en, gen_number=number, size=size)
     urls = image_generation.call()

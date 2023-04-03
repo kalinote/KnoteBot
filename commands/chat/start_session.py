@@ -1,4 +1,4 @@
-import argparse
+from utils.ArgumentParser import ArgumentParser
 import shlex
 
 from amiyabot import Chain, log
@@ -19,19 +19,18 @@ async def start_session_verify(data: Message):
 @bot.on_message(verify=start_session_verify, level=order_level, check_prefix=False)
 async def start_session(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=StartSession.command, description=StartSession.description, exit_on_error=False)
+    parser = ArgumentParser(prog=StartSession.command, description=StartSession.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-t', '--temperature', type=float, default=0.7, help="ChatGPT的temperature值，为0-1之间的浮点数，该值越高(如0.8)将使输出更随机，而越低(例如0.2)将使其更集中和更确定，默认值0.7")
     parser.add_argument('-so', '--system-order', type=str, default=system_order['普通对话'], help="开始对话前的系统指令，用于指示该轮会话ChatGPT所扮演的角色或需要做的事，越详细越好，默认值为系统预置的普通对话系统指令")
 
-    # 帮助信息
-    parameters = shlex.split(data.text)[1:]
-    if '-h' in parameters or '--help' in parameters:
-        return Chain(data).text(parser.format_help())
-
     # 解析命令
-    args = parser.parse_args(args=parameters)
+    try:
+        args = parser.do_parse(data.text)
+    except Exception as info:
+        # 实际上不一定是错误，-h也会触发
+        return Chain(data).text(info.__str__())
 
     temperature = args.temperature
     order = args.system_order

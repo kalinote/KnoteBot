@@ -1,11 +1,11 @@
-import argparse
-import shlex
 import time
 
 from amiyabot import Chain, log
 from amiyabot import Message
 from configs import order_level, bot, sender_ids
 from ai.gpt.chatgpt import gpt_sessions
+from utils.ArgumentParser import ArgumentParser
+
 
 class EndSession:
     command = "#结束会话"
@@ -17,15 +17,14 @@ async def end_session_verify(data: Message):
 @bot.on_message(verify=end_session_verify, level=order_level, check_prefix=False)
 async def end_session(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=EndSession.command, description=EndSession.description, exit_on_error=False)
-
-    # 帮助信息
-    parameters = shlex.split(data.text)[1:]
-    if '-h' in parameters or '--help' in parameters:
-        return Chain(data).text(parser.format_help())
+    parser = ArgumentParser(prog=EndSession.command, description=EndSession.description, exit_on_error=False)
 
     # 解析命令
-    args = parser.parse_args(args=parameters)
+    try:
+        args = parser.do_parse(data.text)
+    except Exception as info:
+        # 实际上不一定是错误，-h也会触发
+        return Chain(data).text(info.__str__())
 
     # 判断是否有会话正在进行
     gpt_session = gpt_sessions.get(data.channel_id, None)

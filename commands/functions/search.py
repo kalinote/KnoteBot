@@ -1,5 +1,3 @@
-import argparse
-import shlex
 import time
 
 from amiyabot import Chain, log
@@ -8,6 +6,7 @@ from playwright.async_api import async_playwright
 
 from ai.gpt.chatgpt import ChatGPT
 from configs import order_level, bot, PROXY_IP, PROXY_PORT, system_order
+from utils.ArgumentParser import ArgumentParser
 
 
 def get_middle_chars(s, n):
@@ -29,18 +28,17 @@ async def search_verify(data: Message):
 @bot.on_message(verify=search_verify, level=order_level, check_prefix=False)
 async def search_website(data: Message):
     # 解析参数
-    parser = argparse.ArgumentParser(prog=RequestWebsite.command, description=RequestWebsite.description, exit_on_error=False)
+    parser = ArgumentParser(prog=RequestWebsite.command, description=RequestWebsite.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-k', '--keyword', type=str, default="kalinote.top", help="需要搜索的关键词，默认为\"kalinote.top\"")
 
-    # 帮助信息
-    parameters = shlex.split(data.text)[1:]
-    if '-h' in parameters or '--help' in parameters:
-        return Chain(data).text(parser.format_help())
-
     # 解析命令
-    args = parser.parse_args(args=parameters)
+    try:
+        args = parser.do_parse(data.text)
+    except Exception as info:
+        # 实际上不一定是错误，-h也会触发
+        return Chain(data).text(info.__str__())
 
     keyword = args.keyword
     url = f"https://www.google.com/search?q={keyword}"
