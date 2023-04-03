@@ -6,7 +6,7 @@ from playwright.async_api import async_playwright
 
 from ai.gpt.chatgpt import ChatGPT
 from configs import order_level, bot, PROXY_IP, PROXY_PORT, system_order
-from utils.ArgumentParser import ArgumentParser
+from utils.argument_parser import ArgumentParser
 
 
 def get_middle_chars(s, n):

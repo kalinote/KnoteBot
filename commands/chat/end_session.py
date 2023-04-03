@@ -1,10 +1,10 @@
 import time
 
-from amiyabot import Chain, log
+from amiyabot import Chain
 from amiyabot import Message
 from configs import order_level, bot, sender_ids
 from ai.gpt.chatgpt import gpt_sessions
-from utils.ArgumentParser import ArgumentParser
+from utils.argument_parser import ArgumentParser
 
 
 class Meta:

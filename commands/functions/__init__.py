@@ -1,3 +1,3 @@
-from .help import *
-from .draw import *
-from .search import *
+from commands.functions.help import *
+from commands.functions.draw import *
+from commands.functions.search import *

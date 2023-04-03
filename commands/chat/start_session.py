@@ -1,10 +1,9 @@
-from utils.ArgumentParser import ArgumentParser
-import shlex
+from utils.argument_parser import ArgumentParser
 
-from amiyabot import Chain, log
+from amiyabot import Chain
 from amiyabot import Message
 
-import end_session
+from commands.chat import end_session
 from configs import system_order, bot_name, order_level, bot
 from ai.gpt.chatgpt import ChatGPT
 from ai.gpt.chatgpt import gpt_sessions

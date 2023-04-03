@@ -1,3 +1,3 @@
-from .chat import *
-from .functions import *
-from .middlewares import *
+from commands.chat import *
+from commands.functions import *
+from commands.middlewares import *

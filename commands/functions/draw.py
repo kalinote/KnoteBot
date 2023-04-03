@@ -6,7 +6,7 @@ from amiyabot import Message
 from ai.gpt.chatgpt import ChatGPT
 from configs import order_level, image_dir, bot, system_order
 from ai.image.create import ImageGeneration
-from utils.ArgumentParser import ArgumentParser
+from utils.argument_parser import ArgumentParser
 
 
 class Meta:

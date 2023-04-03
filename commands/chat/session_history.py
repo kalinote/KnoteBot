@@ -5,7 +5,7 @@ from amiyabot import Message, Chain, log
 
 from ai.gpt.chatgpt import gpt_sessions
 from configs import bot, order_level, sender_ids
-from utils.ArgumentParser import ArgumentParser
+from utils.argument_parser import ArgumentParser
 
 
 class Meta:

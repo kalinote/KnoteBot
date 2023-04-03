@@ -1,10 +1,10 @@
 from amiyabot import Chain, log
 from amiyabot import Message
 
-import start_session
+from commands.chat import start_session
 from configs import order_level, bot
 from ai.gpt.chatgpt import gpt_sessions
-from utils.ArgumentParser import ArgumentParser
+from utils.argument_parser import ArgumentParser
 
 
 class Meta:

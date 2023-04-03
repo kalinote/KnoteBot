@@ -1,11 +1,20 @@
-import argparse
-import shlex
+import glob
+import importlib.util
+import os
 
-from amiyabot import Message, Chain, log
+from amiyabot import Message, Chain
 
-from configs import order_level, bot, bot_name, help_doc
-from utils.ArgumentParser import ArgumentParser
+from configs import order_level, bot, bot_name
+from utils.argument_parser import ArgumentParser
 
+# 生成机器人帮助文档
+def get_command_meta(command_file_path):
+    spec = importlib.util.spec_from_file_location(os.path.basename(command_file_path)[:-3], command_file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if hasattr(module, "Meta"):
+        return getattr(module, "Meta")()
+    return None
 
 class Meta:
     command = "#使用说明"
@@ -24,5 +33,25 @@ async def draw(data: Message):
     except Exception as info:
         # 实际上不一定是错误，-h也会触发
         return Chain(data).text(info.__str__())
+
+    # 生成文档
+    help_doc = "# {bot_name} 使用说明\n\n".format(bot_name=bot_name)
+    help_doc += f"## 聊天类:\n\n"
+    for file_path in glob.glob(os.path.join("commands/chat", "*.py")):
+        # 读取文件中的 Meta 类信息
+        command_meta = get_command_meta(file_path)
+        if command_meta:
+            # 将 Meta 类信息插入到 help_doc 变量中
+            help_doc += f"### {command_meta.command}\n{command_meta.description}\n\n"
+
+    help_doc += f"## 功能类:\n\n"
+    for file_path in glob.glob(os.path.join("commands/functions", "*.py")):
+        # 读取文件中的 Meta 类信息
+        command_meta = get_command_meta(file_path)
+        if command_meta:
+            # 将 Meta 类信息插入到 help_doc 变量中
+            help_doc += f"### {command_meta.command}\n{command_meta.description}\n\n"
+
+    help_doc += "想要阅读更详细的帮助文档，使用以下命令来获取对应功能的详细文档(包括本命令):\n```shell\n#命令 -h\n```\n"
 
     return Chain(data).markdown(help_doc)
