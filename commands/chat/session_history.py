@@ -8,16 +8,16 @@ from configs import bot, order_level, sender_ids
 from utils.ArgumentParser import ArgumentParser
 
 
-class SessionHistory:
+class Meta:
     command = "#会话历史"
     description = "查看当前正在进行的会话的所有历史记录"
 
 async def session_history_verify(data: Message):
-    return True if data.text.startswith(SessionHistory.command) else None
+    return True if data.text.startswith(Meta.command) else None
 @bot.on_message(verify=session_history_verify, level=order_level, check_prefix=False)
 async def session_history(data: Message):
     # 解析参数
-    parser = ArgumentParser(prog=SessionHistory.command, description=SessionHistory.description, exit_on_error=False)
+    parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)
 
     # 解析命令
     try:

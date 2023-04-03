@@ -7,17 +7,17 @@ from ai.gpt.chatgpt import gpt_sessions
 from utils.ArgumentParser import ArgumentParser
 
 
-class EndSession:
+class Meta:
     command = "#结束会话"
     description = "结束一个群内的任何类型的会话"
 
 # 结束会话
 async def end_session_verify(data: Message):
-    return True if data.text.startswith(EndSession.command) else False
+    return True if data.text.startswith(Meta.command) else False
 @bot.on_message(verify=end_session_verify, level=order_level, check_prefix=False)
 async def end_session(data: Message):
     # 解析参数
-    parser = ArgumentParser(prog=EndSession.command, description=EndSession.description, exit_on_error=False)
+    parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)
 
     # 解析命令
     try:

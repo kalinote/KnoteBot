@@ -9,17 +9,17 @@ from ai.image.create import ImageGeneration
 from utils.ArgumentParser import ArgumentParser
 
 
-class Draw:
+class Meta:
     command = "#画图"
     description = "通过自然语言绘制图片"
 
 # 画图(先暂时固定生成1024，1张)
 async def draw_verify(data: Message):
-    return True if data.text.startswith(Draw.command) else None
+    return True if data.text.startswith(Meta.command) else None
 @bot.on_message(verify=draw_verify, level=order_level, check_prefix=False)
 async def draw(data: Message):
     # 解析参数
-    parser = ArgumentParser(prog=Draw.command, description=Draw.description, exit_on_error=False)
+    parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)
 
     # 添加选项和参数
     parser.add_argument('-n', '--generated-number', type=int, default=1, help="生成图片数量，一般为1-10之间的整数，不建议一次生成超过3张，数量过高出现问题的概率会增大，默认为1")
@@ -41,7 +41,7 @@ async def draw(data: Message):
     if size not in ['128x128', '512x512', '1024x1024']:
         return Chain(data).text(f"指定的图像尺寸不正确，支持的尺寸为: 128x128、512x512、1024x1024，指定的尺寸为: {size}")
     if not prompt:
-        return Chain(data).text(f"需要使用-p/--prompt参数指定prompt(对图片的描述)，使用\"{Draw.command} -h\"查看详细帮助")
+        return Chain(data).text(f"需要使用-p/--prompt参数指定prompt(对图片的描述)，使用\"{Meta.command} -h\"查看详细帮助")
     if number > 10 or number < 1:
         return Chain(data).text(f"指定的数量不正确，数量只能为1-10之间的整数，指定的数量为: {number}")
 

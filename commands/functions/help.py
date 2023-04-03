@@ -7,16 +7,16 @@ from configs import order_level, bot, bot_name, help_doc
 from utils.ArgumentParser import ArgumentParser
 
 
-class Help:
+class Meta:
     command = "#使用说明"
     description = f"{bot_name} 的使用方法说明"
 
 async def help_verify(data: Message):
-    return True if data.text.startswith(Help.command) else None
+    return True if data.text.startswith(Meta.command) else None
 @bot.on_message(verify=help_verify, level=order_level, check_prefix=False)
 async def draw(data: Message):
     # 解析参数
-    parser = ArgumentParser(prog=Help.command, description=Help.description, exit_on_error=False)
+    parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)
 
     # 解析命令
     try:
