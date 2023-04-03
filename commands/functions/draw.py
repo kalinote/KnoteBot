@@ -48,7 +48,7 @@ async def draw(data: Message):
     await bot.send_message(Chain().at(data.user_id).text("正在准备生成，请稍等..."), channel_id=data.channel_id)
 
     # 通过GPT将prompt处理为英文
-    prompt_en = ChatGPT(temperature=0, system_order=system_order['翻译助手']).call(content="Translate the following English text to English: {prompt}".format(prompt=prompt))
+    prompt_en = ChatGPT(temperature=0, system_order=system_order['翻译助手']).call(content=prompt)
 
     image_generation = ImageGeneration(prompt=prompt_en, gen_number=number, size=size)
     urls = image_generation.call()
