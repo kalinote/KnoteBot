@@ -11,7 +11,7 @@ from ai.gpt.chatgpt import gpt_sessions
 
 class StartSession:
     command = "#会话"
-    description = "开始一段会话，每个群只能同时开启一个单独的会话"
+    description = "开始一段会话，每个群只能同时开启一个单独的会话(除单次会话外)"
 
 # 普通会话模式
 async def start_session_verify(data: Message):
@@ -24,6 +24,9 @@ async def start_session(data: Message):
     # 添加选项和参数
     parser.add_argument('-t', '--temperature', type=float, default=0.7, help="ChatGPT的temperature值，为0-1之间的浮点数，该值越高(如0.8)将使输出更随机，而越低(例如0.2)将使其更集中和更确定，默认值0.7")
     parser.add_argument('-so', '--system-order', type=str, default=system_order['普通对话'], help="开始对话前的系统指令，用于指示该轮会话ChatGPT所扮演的角色或需要做的事，越详细越好，默认值为系统预置的普通对话系统指令")
+    parser.add_argument('-no', '--no-order', action='store_true', help="是否不设置系统指令，如果指定该参数，则不设置任何系统指令(包括默认系统指令)")
+    parser.add_argument('-s', '--single', action='store_true', help="是否为单句会话模式，如果指定该参数，则只进行一次问答，且不能设置系统指令(-so和--system-order参数无效)。")
+    parser.add_argument('-p', '--prompt', type=str, default=None, help="对话提示词，在单句会话模式中使用，如果是单次会话模式(指定-s或者--single参数)，则参数必须指定，否则指定该参数无效。")
 
     # 解析命令
     try:
@@ -33,7 +36,16 @@ async def start_session(data: Message):
         return Chain(data).text(info.__str__())
 
     temperature = args.temperature
-    order = args.system_order
+    no = args.no_order
+    order = args.system_order if not no else None
+    single = args.single
+    prompt = args.prompt
+
+    # 先处理单句会话
+    if single:
+        if prompt is None:
+            return Chain(data).text("使用单次会话模式时(指定-s或者--single参数)，必须通过-p或者--prompt参数来指定提示词。\n详细使用方法请使用-h或--help参数查询。")
+        return Chain(data).text(ChatGPT(temperature=temperature, system_order=None).call(content=prompt))
 
     if gpt_sessions.get(data.channel_id, None) is not None:
         return Chain(data).text(f"上一次会话尚未结束，或结束后为及时清理会话，请使用\"{EndSession.command}\"来清除当前会话，并使用\"{StartSession.command}\"来开启一个新的ChatGPT会话。")

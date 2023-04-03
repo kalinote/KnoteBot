@@ -16,7 +16,8 @@ class ChatGPT:
 
         # 对话组，将所有对话保存在里面
         self.conversations_group = []
-        self.add_conversation('system', self.system_order)
+        if self.system_order:
+            self.add_conversation('system', self.system_order)
 
         # 对话总token数
         self.tokens_count = 0
