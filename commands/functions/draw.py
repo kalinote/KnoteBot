@@ -4,7 +4,7 @@ from amiyabot import Chain, log
 from amiyabot import Message
 
 from ai.gpt.chatgpt import ChatGPT
-from configs import order_level, image_dir, bot, system_order
+from configs import normal_order_level, image_dir, bot, system_order
 from ai.image.create import ImageGeneration
 from utils.argument_parser import ArgumentParser
 
@@ -16,7 +16,7 @@ class Meta:
 # 画图(先暂时固定生成1024，1张)
 async def draw_verify(data: Message):
     return True if data.text.startswith(Meta.command) else None
-@bot.on_message(verify=draw_verify, level=order_level, check_prefix=False)
+@bot.on_message(verify=draw_verify, level=normal_order_level, check_prefix=False)
 async def draw(data: Message):
     # 解析参数
     parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)

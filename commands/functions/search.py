@@ -5,7 +5,7 @@ from amiyabot import Message
 from playwright.async_api import async_playwright
 
 from ai.gpt.chatgpt import ChatGPT
-from configs import order_level, bot, PROXY_IP, PROXY_PORT, system_order
+from configs import normal_order_level, bot, PROXY_IP, PROXY_PORT, system_order
 from utils.argument_parser import ArgumentParser
 
 
@@ -25,7 +25,7 @@ class Meta:
 # 请求网站
 async def search_verify(data: Message):
     return True if data.text.startswith(Meta.command) else None
-@bot.on_message(verify=search_verify, level=order_level, check_prefix=False)
+@bot.on_message(verify=search_verify, level=normal_order_level, check_prefix=False)
 async def search_website(data: Message):
     # 解析参数
     parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)

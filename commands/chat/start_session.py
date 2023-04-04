@@ -4,7 +4,7 @@ from amiyabot import Chain
 from amiyabot import Message
 
 from commands.chat import end_session
-from configs import system_order, bot_name, order_level, bot
+from configs import system_order, bot_name, normal_order_level, bot
 from ai.gpt.chatgpt import ChatGPT
 from ai.gpt.chatgpt import gpt_sessions
 
@@ -15,7 +15,7 @@ class Meta:
 # 普通会话模式
 async def start_session_verify(data: Message):
     return True if data.text.startswith(Meta.command) else False
-@bot.on_message(verify=start_session_verify, level=order_level, check_prefix=False)
+@bot.on_message(verify=start_session_verify, level=normal_order_level, check_prefix=False)
 async def start_session(data: Message):
     # 解析参数
     parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)

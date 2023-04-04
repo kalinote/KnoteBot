@@ -2,7 +2,7 @@ import time
 
 from amiyabot import Chain
 from amiyabot import Message
-from configs import order_level, bot, sender_ids
+from configs import normal_order_level, bot, sender_ids
 from ai.gpt.chatgpt import gpt_sessions
 from utils.argument_parser import ArgumentParser
 
@@ -14,7 +14,7 @@ class Meta:
 # 结束会话
 async def end_session_verify(data: Message):
     return True if data.text.startswith(Meta.command) else False
-@bot.on_message(verify=end_session_verify, level=order_level, check_prefix=False)
+@bot.on_message(verify=end_session_verify, level=normal_order_level, check_prefix=False)
 async def end_session(data: Message):
     # 解析参数
     parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)

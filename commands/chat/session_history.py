@@ -4,7 +4,7 @@ import shlex
 from amiyabot import Message, Chain, log
 
 from ai.gpt.chatgpt import gpt_sessions
-from configs import bot, order_level, sender_ids
+from configs import bot, normal_order_level, sender_ids
 from utils.argument_parser import ArgumentParser
 
 
@@ -14,7 +14,7 @@ class Meta:
 
 async def session_history_verify(data: Message):
     return True if data.text.startswith(Meta.command) else None
-@bot.on_message(verify=session_history_verify, level=order_level, check_prefix=False)
+@bot.on_message(verify=session_history_verify, level=normal_order_level, check_prefix=False)
 async def session_history(data: Message):
     # 解析参数
     parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)

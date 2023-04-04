@@ -1,3 +1,5 @@
+# change filename to configs.py
+
 from amiyabot import AmiyaBot
 from amiyabot.adapters.mirai import mirai_api_http
 
@@ -7,16 +9,16 @@ auth_key = ''
 adapter_service = mirai_api_http('localhost', ws_port=8060, http_port=8080)
 bot = AmiyaBot(appid=qq, token=auth_key, adapter=adapter_service)
 
-owner_qq = 0
 # 机器人名称
 bot_name = ''
-# 机器人指令优先级
-order_level = 100
-chat_level = 1
-# 机器人帮助文档
-with open('help.xml', 'r', encoding="utf-8") as f:
-    help_doc = f.read().format(bot_name=bot_name)
 
+# 机器人指令优先级
+admin_order_level = 100
+normal_order_level = 50
+chat_level = 1
+
+# 机器人管理员(admin权限)
+admin = []
 
 # ChatGPT对话系统指令
 system_order = {

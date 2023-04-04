@@ -1,7 +1,3 @@
-import asyncio
-
 from commands import *
 
-asyncio.run(bot.start(
-    launch_browser=True
-))
+asyncio.run(bot.start(launch_browser=True))
