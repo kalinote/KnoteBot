@@ -9,10 +9,12 @@ from amiyabot import log
 class ChatGPT:
     url = 'https://api.openai.com/v1/chat/completions'
 
-    def __init__(self, temperature=0.7, system_order=''):
+    def __init__(self, temperature=0.7, system_order='', set_user=False):
         # 准确度，0到1之间，越小准确度越高，回答也就更精确，但限制更多
         self.temperature = temperature
         self.system_order = system_order
+        # 是否在用户发送的对话前添加[username]
+        self.set_user = set_user
 
         # 对话组，将所有对话保存在里面
         self.conversations_group = []
@@ -25,6 +27,9 @@ class ChatGPT:
 
         # 会话开始时间
         self.start_time = time.time()
+
+    def get_set_user(self):
+        return self.set_user
 
     def get_start_time(self):
         return self.start_time

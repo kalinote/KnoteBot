@@ -15,7 +15,9 @@ async def gpt(data: Message):
         gpt_sessions.get(data.channel_id).add_conversation('user', f"[{data.nickname}]{data.text[1:]}")
         return
 
-    answer = gpt_sessions.get(data.channel_id).call(f"[{data.nickname}]{data.text}")
+    chat_gpt = gpt_sessions.get(data.channel_id)
+
+    answer = chat_gpt.call((f"[{data.nickname}]" if chat_gpt.get_set_user() else '') + data.text)
 
     alarm = gpt_sessions.get(data.channel_id).tokens_usage_check()
     if alarm:
