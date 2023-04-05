@@ -1,5 +1,3 @@
-import asyncio
-import sys
 import time
 
 from amiyabot import Message, Chain
