@@ -1,6 +1,6 @@
 import time
 
-from amiyabot import Chain, log
+from amiyabot import Chain
 from amiyabot import Message
 from playwright.async_api import async_playwright
 
