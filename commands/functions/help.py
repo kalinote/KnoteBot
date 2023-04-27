@@ -48,6 +48,7 @@ async def draw(data: Message):
     sections = {
         "chat": "## 聊天类\n\n",
         "functions": "## 功能类\n\n",
+        "tasks": "## 任务类\n\n",
         "admin": "## <div style=\"color:red;\">管理员</div>\n\n",
     }
 

@@ -43,7 +43,7 @@ async def search_website(data: Message):
     keyword = args.keyword
     url = f"https://www.google.com/search?q={keyword}"
 
-    await bot.send_message(Chain().at(data.user_id).text("[实验功能]正在请求搜索内容，由于openai限制每分钟请求数，内容较多的页面所以可能会较慢，请稍等..."), channel_id=data.channel_id)
+    await bot.send_message(Chain().at(data.user_id).text("[实验功能]正在请求搜索内容，由于openai限制每分钟请求数，所以内容较多的页面可能会较慢，请稍等..."), channel_id=data.channel_id)
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(
