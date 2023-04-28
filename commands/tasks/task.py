@@ -1,8 +1,12 @@
-from amiyabot import Chain
-from amiyabot import Message
+import json
 
-from ai.gpt.chatgpt import ChatGPT
+from amiyabot import Chain
+from amiyabot import Message, log
+
+from commands.tasks.agent import Agent
+from commands.tasks.utils import fix_json_by_gpt
 from configs import normal_order_level, bot
+from exceptions.throw_message import ThrowMessage
 from utils.argument_parser import ArgumentParser
 from commands.tasks.prompts import *
 
@@ -33,11 +37,47 @@ async def auto_task(data: Message):
     role = args.role
     goal = args.goal
 
-    # 创建一个main提示词生成器(目标应该是一个list，包含所有阶段的目标，现在暂时先定一个)
-    main_prompt_generator = PromptGenerator(role=role, goals=[goal])
+    # 创建一个代理人
+    agent = Agent(role=role, goals=[goal])
 
-    agent = ChatGPT(temperature=0, system_order=main_prompt_generator.init_prompt_string)
-    result = await agent.call('确定要使用的下一个命令，并使用上面指定的JSON格式响应:')
+    loop_count = 0
+    continuous_limit = 3
+    while True:
+        loop_count += 1
+        if loop_count > continuous_limit:
+            break
 
-    return Chain(data).text(result)
+        try:
+            result, message = await agent.run_step(user_input="确定要使用的下一个命令，并使用上面指定的JSON格式响应，且不带其他任何格式，仅回复Json内容:")
+        except ThrowMessage as msg:
+            return Chain(data).text(str(msg))
+
+        try:
+            result_json = json.loads(result)
+        except Exception as e:
+            log.error(f'Agent返回内容解析失败:\n{e}')
+            log.error(f'result: {result}')
+            try:
+                result_json = await fix_json_by_gpt(result)
+            except Exception as err:
+                return Chain(data).text(f'Agent返回内容解析失败:\n{err}')
+
+        try:
+            reply = (
+                f"我的想法是: {result_json['thoughts']['text']}\n"
+                f"理由是: {result_json['thoughts']['reasoning']}\n\n"
+                f"为了实现这个想法，我的计划是:\n{result_json['thoughts']['plan']}\n\n"
+                f"{result_json['thoughts']['criticism']}\n\n"
+                f"下一步指令: {result_json['command']['name']}\n"
+                f"参数: {str(result_json['command']['args'])}"
+            )
+        except Exception as e:
+            return Chain(data).text(f'Agent返回Json解析失败:\n{e}\n\nJson内容为: {result_json}')
+
+        # log.debug(json.dumps({'message': message}, indent=4))
+        await bot.send_message(Chain().at(data.user_id).text(reply),
+                               channel_id=data.channel_id)
+
+    # await bot.send_message(Chain().at(data.user_id).text(json.dumps({'message': message}, indent=4)), channel_id=data.channel_id)
+    return
 

@@ -9,7 +9,7 @@ from amiyabot import log
 class ChatGPT:
     url = 'https://api.openai.com/v1/chat/completions'
 
-    def __init__(self, temperature=0.7, system_order='', set_user=False):
+    def __init__(self, temperature=0.7, system_order='', set_user=False, using_model='gpt-3.5-turbo'):
         # 准确度，0到1之间，越小准确度越高，回答也就更精确，但限制更多
         self.temperature = temperature
         self.system_order = str(system_order)
@@ -28,6 +28,8 @@ class ChatGPT:
         # 会话开始时间
         self.start_time = time.time()
 
+        self.using_model = using_model
+
     def get_set_user(self):
         return self.set_user
 
@@ -36,6 +38,9 @@ class ChatGPT:
 
     def get_conversations_group(self):
         return self.conversations_group
+
+    def get_raw_conversations_group(self):
+        return list(map(lambda x:x['message'], self.conversations_group))
 
     def get_conversations_count(self):
         """
@@ -50,7 +55,7 @@ class ChatGPT:
     def get_data(self):
         messages = [conversation['message'] for conversation in self.get_conversations_group()]
         return {
-            "model": "gpt-3.5-turbo",
+            "model": self.using_model,
             "messages": messages,
             "temperature": self.temperature
         }
@@ -63,6 +68,16 @@ class ChatGPT:
         :return:
         """
         self.conversations_group.append(self.gen_conversation(role, content))
+
+    def add_conversation_by_index(self, role, content, index):
+        self.conversations_group.insert(index, self.gen_conversation(role, content))
+
+    def pop_conversation(self):
+        """
+        弹出最后一条消息
+        :return:
+        """
+        self.conversations_group.pop()
 
     @staticmethod
     def gen_conversation(role, content):
@@ -91,17 +106,18 @@ class ChatGPT:
             return self.get_tokens_count()
         return False
 
-    async def call(self, content, role='user'):
+    async def call(self, content=None, role='user'):
         """
         将新的对话添加到对话组，并请求
         :param content:
         :param role:
         :return:
         """
-        if role not in ['user', 'system', 'assistant']:
-            role = 'user'
+        if content:
+            if role not in ['user', 'system', 'assistant']:
+                role = 'user'
 
-        self.add_conversation(role, content)
+            self.add_conversation(role, content)
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             try:
                 async with session.post(
