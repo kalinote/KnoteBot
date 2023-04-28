@@ -1,7 +1,7 @@
 import json
 import time
-
-import requests
+import aiohttp
+from aiohttp import TCPConnector
 
 from configs import proxies, headers
 from amiyabot import log
@@ -12,7 +12,7 @@ class ChatGPT:
     def __init__(self, temperature=0.7, system_order='', set_user=False):
         # 准确度，0到1之间，越小准确度越高，回答也就更精确，但限制更多
         self.temperature = temperature
-        self.system_order = system_order
+        self.system_order = str(system_order)
         # 是否在用户发送的对话前添加[username]
         self.set_user = set_user
 
@@ -91,35 +91,41 @@ class ChatGPT:
             return self.get_tokens_count()
         return False
 
-    def call(self, content):
+    async def call(self, content, role='user'):
         """
         将新的对话添加到对话组，并请求
         :param content:
+        :param role:
         :return:
         """
-        self.add_conversation('user', content)
-        try:
-            ret = requests.post(
-                url=ChatGPT.url,
-                headers=headers,
-                data=json.dumps(self.get_data()),
-                proxies=proxies
-            ).text
-            # print(ret)
-            ret_json = json.loads(ret)
-        except Exception as e:
-            log.error(f"在处理ChatGPT对话时发生了错误: {e}")
-            self.conversations_group.pop()
-            return f"在处理ChatGPT对话时发生了错误: {e}"
-        try:
-            answer = ret_json['choices'][0]['message']['content']
-            self.tokens_count += int(ret_json['usage']['total_tokens'])
-        except Exception as e:
-            log.error(f"在处理json时出现错误，{e}，JSON原文为：{str(ret_json)}")
-            self.add_conversation('assistant', 'no reply')
-            return f"[ChatGPT Handler]在处理json时出现错误，{e}，JSON原文为：{str(ret_json)}"
-        self.add_conversation('assistant', answer)
-        return answer
+        if role not in ['user', 'system', 'assistant']:
+            role = 'user'
+
+        self.add_conversation(role, content)
+        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
+            try:
+                async with session.post(
+                        url=ChatGPT.url,
+                        headers=headers,
+                        data=json.dumps(self.get_data()),
+                        proxy=proxies['https']
+                ) as response:
+                    ret = await response.text()
+                    # print(ret)
+                    ret_json = json.loads(ret)
+            except Exception as e:
+                log.error(f"在处理ChatGPT对话时发生了错误: {e}")
+                self.conversations_group.pop()
+                return f"在处理ChatGPT对话时发生了错误: {e}"
+            try:
+                answer = ret_json['choices'][0]['message']['content']
+                self.tokens_count += int(ret_json['usage']['total_tokens'])
+            except Exception as e:
+                log.error(f"在处理json时出现错误，{e}，JSON原文为：{str(ret_json)}")
+                self.add_conversation('assistant', 'no reply')
+                return f"[ChatGPT Handler]在处理json时出现错误，{e}，JSON原文为：{str(ret_json)}"
+            self.add_conversation('assistant', answer)
+            return answer
 
 
     def restart(self):

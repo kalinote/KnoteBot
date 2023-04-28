@@ -97,7 +97,7 @@ async def search_website(data: Message):
     for content in content_list:
         count += 1
         gpt = ChatGPT(temperature=0.3, system_order=system_order['网页分析助手'])
-        await bot.send_message(Chain().text(f"第{count}/{len(content_list)}段：\n" + gpt.call(content)), channel_id=data.channel_id)
+        await bot.send_message(Chain().text(f"第{count}/{len(content_list)}段：\n" + await gpt.call(content)), channel_id=data.channel_id)
         time.sleep(1)
 
     return

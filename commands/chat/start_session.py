@@ -55,7 +55,7 @@ async def start_session(data: Message):
     if single:
         if prompt is None:
             return Chain(data).text("使用单次会话模式时(指定-s或者--single参数)，必须通过-p或者--prompt参数来指定提示词。\n详细使用方法请使用-h或--help参数查询。")
-        return Chain(data).text(ChatGPT(temperature=temperature, system_order=None, set_user=user).call(content=(f"[{data.nickname}]" if user else '') + prompt))
+        return Chain(data).text(await ChatGPT(temperature=temperature, system_order=None, set_user=user).call(content=(f"[{data.nickname}]" if user else '') + prompt))
 
     if gpt_sessions.get(data.channel_id, None) is not None:
         return Chain(data).text(f"上一次会话尚未结束，或结束后为及时清理会话，请使用\"{end_session.Meta.command}\"来清除当前会话，并使用\"{Meta.command}\"来开启一个新的ChatGPT会话。")

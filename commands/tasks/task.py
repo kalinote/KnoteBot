@@ -1,11 +1,8 @@
-import shlex
-
-from amiyabot import Chain, log
+from amiyabot import Chain
 from amiyabot import Message
 
 from ai.gpt.chatgpt import ChatGPT
-from configs import normal_order_level, image_dir, bot, system_order, bot_name
-from ai.image.create import ImageGeneration
+from configs import normal_order_level, bot
 from utils.argument_parser import ArgumentParser
 from commands.tasks.prompts import *
 
@@ -37,6 +34,10 @@ async def auto_task(data: Message):
     goal = args.goal
 
     # 创建一个main提示词生成器(目标应该是一个list，包含所有阶段的目标，现在暂时先定一个)
-    # main_prompt_generator = PromptGenerator(role=role, goals=[goal])
-    return Chain(data).text(str(PromptGenerator(role=role, goals=[goal]).init_prompt_string))
+    main_prompt_generator = PromptGenerator(role=role, goals=[goal])
+
+    agent = ChatGPT(temperature=0, system_order=main_prompt_generator.init_prompt_string)
+    result = await agent.call('确定要使用的下一个命令，并使用上面指定的JSON格式响应:')
+
+    return Chain(data).text(result)
 

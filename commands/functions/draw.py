@@ -48,14 +48,14 @@ async def draw(data: Message):
     await bot.send_message(Chain().at(data.user_id).text("正在准备生成，请稍等..."), channel_id=data.channel_id)
 
     # 通过GPT将prompt处理为英文
-    prompt_en = ChatGPT(temperature=0, system_order=system_order['翻译助手']).call(content=prompt)
+    prompt_en = await ChatGPT(temperature=0, system_order=system_order['翻译助手']).call(content=prompt)
 
     image_generation = ImageGeneration(prompt=prompt_en, gen_number=number, size=size)
-    urls = image_generation.call()
+    urls = await image_generation.call()
     if type(urls) == str:
         return Chain(data).text(urls)
 
-    files = image_generation.download_images()
+    files = await image_generation.download_images()
     if not files:
         return Chain(data).text("图像生成错误，请稍后重试！")
 

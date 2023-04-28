@@ -1,7 +1,8 @@
 import hashlib
 import json
 
-import requests
+import aiohttp
+from aiohttp import TCPConnector
 
 from configs import headers, proxies, image_dir
 from amiyabot import log
@@ -23,15 +24,17 @@ class ImageGeneration:
             "size": self.size
         }
 
-    def call(self):
+    async def call(self):
         try:
-            ret = requests.post(
-                url=ImageGeneration.url,
-                headers=headers,
-                data=json.dumps(self.get_data()),
-                proxies=proxies
-            ).text
-            ret_json = json.loads(ret)
+            async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
+                async with session.post(
+                        url=ImageGeneration.url,
+                        headers=headers,
+                        data=json.dumps(self.get_data()),
+                        proxy=proxies['https']
+                ) as response:
+                    ret = await response.text()
+                    ret_json = json.loads(ret)
         except Exception as e:
             log.error(f"在请求图片时出现了错误: {e}")
             return f"在请求图片时出现了错误: {e}"
@@ -43,21 +46,22 @@ class ImageGeneration:
             return f"[Draw Handler]在处理json时出现错误，{e}，JSON原文为：{str(ret_json)}"
         return urls
 
-    def download_images(self):
+    async def download_images(self):
         if not self.urls:
             return False
         filenames = []
         try:
-            for url in self.urls:
-                ret = requests.get(url=url, proxies=proxies)
-                if ret.status_code != 200:
-                    del ret
-                    return False
+            async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
+                for url in self.urls:
+                    async with session.get(url=url, proxy=proxies['https']) as response:
+                        if response.status != 200:
+                            return False
 
-                filename = str(hashlib.md5(ret.content).hexdigest()) + '.png'
-                with open(f'{image_dir}/{filename}', 'wb') as f:
-                    f.write(ret.content)
-                filenames.append(filename)
+                        content = await response.read()
+                        filename = str(hashlib.md5(content).hexdigest()) + '.png'
+                        with open(f'{image_dir}/{filename}', 'wb') as f:
+                            f.write(content)
+                        filenames.append(filename)
             return filenames
         except Exception as e:
             log.error(f"在下载生成的图片时发生了错误: {e}")
