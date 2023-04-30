@@ -9,7 +9,7 @@ class ArgumentParser(argparse.ArgumentParser):
     def do_parse(self, command):
         # 帮助信息
         parameters = shlex.split(command)[1:]
-        if '-h' in parameters or '--help' in parameters:
+        if '-h' in parameters or '--help_message' in parameters:
             raise ThrowMessage(self.format_help())
 
         # 解析命令

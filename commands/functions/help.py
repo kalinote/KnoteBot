@@ -31,7 +31,7 @@ class Meta:
 async def help_verify(data: Message):
     return True if data.text.startswith(Meta.command) else None
 @bot.on_message(verify=help_verify, level=normal_order_level, check_prefix=False)
-async def draw(data: Message):
+async def help_message(data: Message):
     # 解析参数
     parser = ArgumentParser(prog=Meta.command, description=Meta.description, exit_on_error=False)
 

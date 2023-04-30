@@ -1,1 +1,1 @@
-from commands.admin.stop import *
+from commands.admin.stop import stop

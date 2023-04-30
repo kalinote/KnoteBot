@@ -41,14 +41,14 @@ async def auto_task(data: Message):
     agent = Agent(role=role, goals=[goal])
 
     loop_count = 0
-    continuous_limit = 3
+    continuous_limit = 5
     while True:
         loop_count += 1
         if loop_count > continuous_limit:
             break
 
         try:
-            result, message = await agent.run_step(user_input="确定要使用的下一个命令，并使用上面指定的JSON格式响应，且不带其他任何格式，仅回复Json内容:")
+            result = await agent.run_step(user_input="确定要使用的下一个命令，并使用上面指定的JSON格式响应，且不带其他任何格式，仅回复Json内容:")
         except ThrowMessage as msg:
             return Chain(data).text(str(msg))
 
@@ -74,10 +74,40 @@ async def auto_task(data: Message):
         except Exception as e:
             return Chain(data).text(f'Agent返回Json解析失败:\n{e}\n\nJson内容为: {result_json}')
 
-        # log.debug(json.dumps({'message': message}, indent=4))
         await bot.send_message(Chain().at(data.user_id).text(reply),
                                channel_id=data.channel_id)
 
-    # await bot.send_message(Chain().at(data.user_id).text(json.dumps({'message': message}, indent=4)), channel_id=data.channel_id)
-    return
+        try:
+            result = await agent.do_command(result_json['command']['name'], **result_json['command']['args'])
+        except ThrowMessage as msg:
+            await bot.send_message(Chain().at(data.user_id).text(str(msg)),
+                               channel_id=data.channel_id)
+
+        result = f"指令: {result_json['command']} 返回了: {result}"
+        log.debug(result)
+        memory_to_add = (
+            f"机器人回复: {reply} "
+            f"\n结果: {result} "
+            # f"\n人工反馈: {user_input} "
+        )
+        await agent.memory.add(memory_to_add)
+
+        # 执行命令并将结果添加到内存和消息历史记录中
+        if result is not None:
+            agent.full_message_history.append(
+                {
+                    'role': 'system',
+                    'content': result
+                }
+            )
+        else:
+            agent.full_message_history.append(
+                {
+                    'role': 'system',
+                    'content': '无法执行指令'
+                }
+            )
+            log.error(f"无法执行命令: {result_json['command']['name']}")
+
+    return Chain(data).text(f'任务执行结束，或步数达到限制。当前步数/限制步数: {loop_count-1}/{continuous_limit}')
 

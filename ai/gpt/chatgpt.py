@@ -53,7 +53,8 @@ class ChatGPT:
         return self.tokens_count
 
     def get_data(self):
-        messages = [conversation['message'] for conversation in self.get_conversations_group()]
+        messages = self.get_raw_conversations_group()
+        # log.debug(f'body: {messages}')
         return {
             "model": self.using_model,
             "messages": messages,

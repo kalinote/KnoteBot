@@ -17,7 +17,7 @@ async def create_embedding_with_ada(text):
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             try:
                 async with session.post(
-                        url=ChatGPT.url,
+                        url='https://api.openai.com/v1/embeddings',
                         headers=headers,
                         data=json.dumps(
                             {
@@ -31,6 +31,7 @@ async def create_embedding_with_ada(text):
                     # print(ret)
                     ret_json = json.loads(ret)
 
+                    # log.debug(f'这里返回的结构是: {ret_json}')
                     return ret_json["data"][0]["embedding"]
             except Exception as e:
                 log.error(f"API request faild: {e}. Waiting {backoff} seconds to retry...")

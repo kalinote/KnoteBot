@@ -65,3 +65,18 @@ proxies = {
 }
 # 图片下载文件夹
 image_dir = 'images'
+
+# Task
+TaskConfig = {
+    'memory': {
+        'memory_type': 'local',
+        'index': 'gpt-agent-memory',
+    },
+    'search': {
+        'google_api_key': '',
+        'custom_search_engine_id': '',
+    },
+    'token_limit': 4000,
+    'browse_chunk_max_length': 3000,
+}
+

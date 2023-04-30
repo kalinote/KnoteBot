@@ -1,1 +1,1 @@
-from commands.middlewares.chat_persistence import *
+from commands.middlewares.chat_persistence import chat_persistence

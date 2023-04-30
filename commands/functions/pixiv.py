@@ -32,7 +32,7 @@ async def get_tags(data):
 
 class Meta:
     command = "#pixiv"
-    description = f"pivix操作指令，详细说明使用 #pixiv -h/--help 或 #pixiv help 指令查看"
+    description = f"pivix操作指令，详细说明使用 #pixiv -h/--help_message 或 #pixiv help_message 指令查看"
 
 
 async def pixiv_verify(data: Message):
