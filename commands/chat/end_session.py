@@ -82,7 +82,7 @@ async def end_session(data: Message):
 
     title = await ChatGPT(temperature=0).call(
         f"对下面这段对话取一个标题，长度不要超过20个字，只返回标题，不要加任何其他内容：\n "
-        f"{gpt_session.get_raw_conversations_group()}")
+        f"{gpt_session.get_raw_conversations_group()[:6]}")
 
     if len(title) > 20:
         title = '会话记录'
