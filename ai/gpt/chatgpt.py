@@ -6,6 +6,7 @@ from aiohttp import TCPConnector
 from configs import proxies, headers
 from amiyabot import log
 
+
 class ChatGPT:
     url = 'https://api.openai.com/v1/chat/completions'
 
@@ -40,7 +41,7 @@ class ChatGPT:
         return self.conversations_group
 
     def get_raw_conversations_group(self):
-        return list(map(lambda x:x['message'], self.conversations_group))
+        return list(map(lambda x: x['message'], self.conversations_group))
 
     def get_conversations_count(self):
         """
@@ -144,7 +145,6 @@ class ChatGPT:
             self.add_conversation('assistant', answer)
             return answer
 
-
     def restart(self):
         """
         重新开始对话，但保留tokens_count计数
@@ -152,6 +152,7 @@ class ChatGPT:
         """
         self.conversations_group = []
         self.add_conversation('system', self.system_order)
+
 
 # 用一个字典来保存每个群的ChatGPT对象
 gpt_sessions = dict()

@@ -138,7 +138,8 @@ class Agent:
                     return result_urls
 
             elif command == "memory_add":
-                pass
+                memory = get_memory()
+                return memory.add(args.get('string', ""))
             elif command == "start_agent":
                 pass
             elif command == "message_agent":
